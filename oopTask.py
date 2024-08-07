@@ -14,14 +14,34 @@ class Name(Field):
 
 class Phone(Field):
     def __init__(self, value):
+        print(value)
         if not self.validate(value):
-            raise ValueError("Клас для зберігання номера телефону. Має валідацію формату (10 цифр)")
+            raise ValueError("Клас для зберігання номера телефону. Має валідацію формату (12 цифр)")
+        else:
+            value = self.fromater(value)
+            print("Test")
+            print(value)
         super().__init__(value)
 
     @staticmethod
-    def validate(phone):
+    def fromater(phone):
+       
+        if len(phone) == 10:
+            phone = '38'+phone
+            print(phone)
+        elif len(phone) != 12:
+            raise ValueError("Щось пішло не так")
         
-        return phone.isdigit() and len(phone) == 10
+        return phone
+
+    @staticmethod
+    def validate(phone):
+        if not phone.isdigit():
+            return False
+        isShortFormat = len(phone) == 10 and phone.startswith('0')
+        isLongFormat = phone.startswith('380') and len(phone) == 12
+
+        return isShortFormat or isLongFormat
 
 
 class Birthday(Field):

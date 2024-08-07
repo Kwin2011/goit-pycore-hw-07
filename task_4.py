@@ -1,8 +1,25 @@
 import logging
+import privatbankAPI
 import pickle
 from oopTask import AddressBook, Record, Name, Phone, Field, Birthday
 from datetime import datetime
 
+def show_help():
+    help_text = (
+        "Available commands:\n"
+        "- hello: Greets the user.\n"
+        "- add [contact details]: Adds a new contact.\n"
+        "- change [contact details]: Changes an existing contact.\n"
+        "- phone [contact name]: Shows the phone number of the contact.\n"
+        "- all: Shows all contacts.\n"
+        "- add-birthday [contact details]: Adds a birthday to a contact.\n"
+        "- show-birthday [contact name]: Shows the birthday of the contact.\n"
+        "- birthdays: Shows all upcoming birthdays.\n"
+        "- exchange: Shows the current exchange rates from PrivatBank.\n"
+        "- close / exit: Saves data and exits the application.\n"
+        "- help: Shows this help message."
+    )
+    return help_text
 
 def save_data(book, filename="addressbook.pkl"):
     with open(filename, "wb") as f:
@@ -115,6 +132,19 @@ def show_all(book):
     else:
         return "No contacts found."
 
+def confirm_save():
+    while True:
+        confirm = input("Do you really want to save the data before exiting? (yes/no): ").strip().lower()
+        if confirm == "yes":
+            return True
+        elif confirm == "no":
+            return False
+        else:
+            print("Invalid command.")
+
+
+
+
 def main():
     book = load_data()
     # book = AddressBook()
@@ -126,8 +156,11 @@ def main():
         
         try:
             if command in ["close", "exit"]:
-                save_data(book)
-                print("Result have been saved. Good bye!")
+                if confirm_save():
+                    save_data(book)
+                    print("Result has been saved. Goodbye!")
+                else:
+                    print("Changes were not saved. Goodbye!")
                 break
             elif command == "hello":
                 print("How can I help you?")
@@ -145,61 +178,14 @@ def main():
                 print(show_birthday(args, book))
             elif command == "birthdays":
                 print(birthdays(args, book))
+            elif command == "exchange":
+                print(privatbankAPI.get_exchange_rates())
+            elif command == "help":
+                print(show_help())
             else:
                 print("Invalid command.")
         except Exception as e:
             print(str(e))
-
-def test():
-    book = AddressBook()
-
-    # Додавання контактів з правильними номерами телефонів
-    try:
-        print(add_contact(parse_input("add Stefan 9999999999")[1], book))
-    except ValueError as e:
-        print(e)
-
-    try:
-        print(add_contact(parse_input("add Anna 1234567890")[1], book))
-    except ValueError as e:
-        print(e)
-
-    # Показ телефонних номерів
-    print(show_phone(["Stefan"], book))
-    print(show_phone(["Anna"], book))
-
-    # Додавання днів народження
-    try:
-        print(add_birthday(parse_input("add-birthday Stefan 06.01.1997")[1], book))
-    except ValueError as e:
-        print(e)
-
-    try:
-        print(add_birthday(parse_input("add-birthday Anna 22.07.1995")[1], book))
-    except ValueError as e:
-        print(e)
-
-
-    print(show_birthday(["Stefan"], book))
-    print(show_birthday(["Anna"], book))
-
-    print(show_all(book))
-    print("_______________")
-
-
-    # Зміна телефонного номера
-    try:
-        print(change_contact(parse_input("change Stefan 9999999999 0987654321")[1], book))
-    except ValueError as e:
-        print(e)
-
-    print(show_phone(["Stefan"], book))
-
-
-    print(show_all(book))
-
-    # Показ днів народження, які відбудуться протягом наступного тижня
-    print(birthdays([], book))
 
 
 if __name__ == "__main__":
