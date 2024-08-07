@@ -1,6 +1,20 @@
 import logging
+import pickle
 from oopTask import AddressBook, Record, Name, Phone, Field, Birthday
 from datetime import datetime
+
+
+def save_data(book, filename="addressbook.pkl"):
+    with open(filename, "wb") as f:
+        pickle.dump(book, f)
+
+def load_data(filename="addressbook.pkl"):
+    try:
+        with open(filename, "rb") as f:
+            return pickle.load(f)
+    except FileNotFoundError:
+        return AddressBook()  # Повернення нової адресної книги, якщо файл не знайдено
+
 
 def input_error(func):
     def wrapper(*args, **kwargs):
@@ -102,7 +116,8 @@ def show_all(book):
         return "No contacts found."
 
 def main():
-    book = AddressBook()
+    book = load_data()
+    # book = AddressBook()
     print("Welcome to the assistant bot!")
     
     while True:
@@ -111,7 +126,8 @@ def main():
         
         try:
             if command in ["close", "exit"]:
-                print("Good bye!")
+                save_data(book)
+                print("Result have been saved. Good bye!")
                 break
             elif command == "hello":
                 print("How can I help you?")
